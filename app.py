@@ -46,7 +46,12 @@ if st.button("Predict"):
         input_scaled = input_data
 
     # Get probability
-prob = model.predict_proba(input_scaled)[0][1]
+prediction = model.predict(input_scaled)
+
+if prediction[0] == 1:
+    st.error("⚠️ High Risk: CKD Progression Likely")
+else:
+    st.success("✅ Low Risk: Stable Condition")
 
 # Show risk %
 st.subheader(f"Risk Score: {prob*100:.2f}%")
