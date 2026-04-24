@@ -39,27 +39,26 @@ if st.button("Predict"):
 
     input_data = np.array([[sg, hemo, pcv, sc, al, dm, bgr, rc, htn, sod]])
 
-    # ⚠️ If scaler mismatch happens, remove scaling line
+    # Scaling
     try:
         input_scaled = scaler.transform(input_data)
-    except:
+    except Exception as e:
+        st.error(f"Scaler error: {e}")
         input_scaled = input_data
 
-    # Get probability
-prediction = model.predict(input_scaled)
+    # Prediction
+    try:
+        prob = model.predict_proba(input_scaled)[0][1]
 
-if prediction[0] == 1:
-    st.error("⚠️ High Risk: CKD Progression Likely")
-else:
-    st.success("✅ Low Risk: Stable Condition")
+        st.subheader(f"Risk Score: {prob*100:.2f}%")
 
-# Show risk %
-st.subheader(f"Risk Score: {prob*100:.2f}%")
+        if prob > 0.5:
+            st.error("⚠️ High Risk: CKD Progression Likely")
+        else:
+            st.success("✅ Low Risk: Stable Condition")
 
-# Show result
-if prob > 0.5:
-    st.error("⚠️ High Risk: CKD Progression Likely")
-else:
-    st.success("✅ Low Risk: Stable Condition")
-    st.subheader("Top Risk Factors")
-st.write(["Specific Gravity", "Hemoglobin", "Creatinine", "Albumin"])
+        st.subheader("Top Risk Factors")
+        st.write(["Specific Gravity", "Hemoglobin", "Creatinine", "Albumin"])
+
+    except Exception as e:
+        st.error(f"Model prediction error: {e}")
